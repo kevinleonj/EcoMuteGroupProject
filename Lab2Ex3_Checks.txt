@@ -1,0 +1,56 @@
+# ==========================
+1. LINTING (Ruff)
+    (venv) PS C:\Users\Usuario\Documents\Ecomute_2> ruff check .
+All checks passed!
+
+# ==========================
+2. TYPE CHECKING (MyPy)
+(venv) PS C:\Users\Usuario\Documents\Ecomute_2> mypy --explicit-package-bases src
+Success: no issues found in 8 source files
+        Because src is not defined as a traditional package with __init__.py, 
+        MyPy must be instructed to treat src as the package base.
+        The --explicit-package-bases flag ensures that MyPy correctly resolves module path
+
+# ==========================    
+3. RUNNING APPLICATION
+    The project follows a src layout pattern.
+Setting PYTHONPATH="src" ensures that Python recognizes src as the import root at runtime.
+
+(venv) PS C:\Users\Usuario\Documents\Ecomute_2> uvicorn src.app.main:app --reload
+INFO:     Will watch for changes in these directories: ['C:\\Users\\Usuario\\Documents\\Ecomute_2']     
+INFO:     Uvicorn running on http://127.0.0.1:8000 (Press CTRL+C to quit)
+INFO:     Started reloader process [10496] using StatReload
+INFO:     Started server process [5472]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     127.0.0.1:60889 - "GET /docs HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60889 - "GET /openapi.json HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56438 - "GET /bikes/?status=rented HTTP/1.1" 200 OK
+
+# ==========================    
+4.  a) Pydantic automatically validates the request body before the endpoint logic runs. 
+Since battery > 100 violates the Field constraint (le=100), FastAPI returns 422.
+    PINFO:     127.0.0.1:50693 - "POST /bikes/  HTTP/1.1" 422 Unprocessable Content
+    Server response
+    Code 422	Error: Unprocessable Content
+    Response body
+    {
+     "detail": [
+       {
+         "type": "less_than_equal",
+         "loc": [
+           "body",
+           "battery"
+          ],
+          "msg": "Input should be less than or equal to 100",
+       "input": 150,
+       "ctx": {
+         "le": 100
+       }
+       }
+      ]
+    }
+
+    b) http://127.0.0.1:8000/bikes?status=available --> [{"model":"EcoCruiser","battery":95.0,"status":"available","station_id":101,"id":1}]
+The optional query parameter `status` correctly filters the dataset 
+before returning the response_model.
