@@ -51,7 +51,7 @@ async def test_create_bike(async_client):
 
     response = await async_client.post("/bikes/", json=payload)
 
-    assert response.status_code == 200
+    assert response.status_code == 201
     data = response.json()
     assert data["model"] == "NewBike"
     assert data["battery"] == 80
